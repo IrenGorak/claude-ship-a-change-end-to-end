@@ -4,7 +4,7 @@ const store = require("../db/store");
 const router = express.Router();
 
 // A basic shape check (something@domain.tld), not full address validation.
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
 // GET /users — list every user
 router.get("/", (req, res) => {
@@ -49,7 +49,7 @@ router.put("/:id", (req, res) => {
     return res.status(400).json({ error: "email must be a valid email address" });
   }
 
-  const user = store.updateUser(id, { name, email });
+  const user = store.updateUser(id, { name: name.trim(), email });
 
   if (!user) {
     return res.status(404).json({ error: "User not found" });
