@@ -6,6 +6,12 @@ const router = express.Router();
 // A basic shape check (something@domain.tld), not full address validation.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/;
 
+// Only plain positive integers are ids. Number() alone would also turn forms
+// like 0x1, 1.0 or 01 into 1, letting those URLs reach a real user.
+function parseId(rawId) {
+  return /^[1-9]\d*$/.test(rawId) ? Number(rawId) : undefined;
+}
+
 // GET /users — list every user
 router.get("/", (req, res) => {
   res.json(store.getAllUsers());
@@ -13,7 +19,7 @@ router.get("/", (req, res) => {
 
 // GET /users/:id — fetch a single user, or 404 if it doesn't exist
 router.get("/:id", (req, res) => {
-  const id = Number(req.params.id);
+  const id = parseId(req.params.id);
   const user = store.getUserById(id);
 
   if (!user) {
@@ -38,7 +44,7 @@ router.post("/", (req, res) => {
 // PUT /users/:id — replace a user's name and email; 400 if either is invalid,
 // 404 if the user doesn't exist
 router.put("/:id", (req, res) => {
-  const id = Number(req.params.id);
+  const id = parseId(req.params.id);
   const { name, email } = req.body;
 
   if (typeof name !== "string" || name.trim() === "") {
